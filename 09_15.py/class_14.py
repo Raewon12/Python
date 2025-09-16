@@ -36,7 +36,11 @@ class Product:
             self._product_stock = value            
 
     def __str__(self):
-        return f'상품명: {self.product_name}, 가격: {self.product_price}, 재고: {self.product_stock}'
+        return f'상품명: {self.product_name},\
+        가격: {self.product_price}, \
+        재고: {self.product_stock}'
+    def __eq__(self, value):
+        return self._product_stock == value._product_stock
 
 products = [
     Product("노트북", 1000000, 10),
@@ -44,9 +48,28 @@ products = [
     Product("태블릿", 300000, 15)
 ]    
 # 노트북의 가격을 20% 인하
+for p in products:
+    if p.product_name == '노트북':
+        p.product_price = p.product_price * 0.8
 # 스마트폰은 가격을 10% 인상
+for p in products:
+    if p.product_name == '스마트폰':
+        p.product_price = p.product_price*0.1 + p.product_price
 # 전체제품 출력
+for p in products:
+    print(p)
 # 제품추가
+products.append('TV',20000,100)
 # 제품 삭제
-# 제품 출력
+del_production = 'TV'
+for p in enumerate(products):  #enumerate???
+    if p.product_name == "TV":
+        del products[idx]  # idx???
+        break # 순환하는 도중에 삭제하는거 좀 조심해야함
+# 현재 모든 제품의 수량의 합
+total = 0
+for p in products:
+    total_stock += p.product_stock
+#가격x 수량을 기준으로 같다 크다 크거나 같다 작다 작거나 같다
+
      
