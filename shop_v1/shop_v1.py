@@ -1,5 +1,6 @@
 #pip install pymysql
 import pymysql
+<<<<<<< HEAD
 from dotenv import load_dotenv
 import os 
 load_dotenv()
@@ -9,6 +10,14 @@ conn = pymysql.connect(
     user = os.getenv('DB_USER'),
     password = os.getenv('DB_PASSWORD'),
     database=os.getenv('DB_NAME')
+=======
+# 1 .DB연결
+conn = pymysql.connect(
+    host = '127.0.0.1',
+    user = 'root',
+    password = '1234',
+    database='mydb'
+>>>>>>> 3849f5e4c7bd77d97f454ec720ca5376171b3465
 )
 print('접속성공')
 conn.close()
