@@ -1,4 +1,4 @@
-list_a = [1,2,3]
+plist_a = [1,2,3]
 list_b = [4,5,6]
 last_name = '홍'
 first_name = '길동' 

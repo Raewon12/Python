@@ -1,0 +1,9 @@
+# 가상환경
+.vscode
+#환경변수
+.env
+#파이썬
+
+*.splite3
+*.db
+*.__pyache__
