@@ -5,61 +5,69 @@ import os
 load_dotenv()
 
 conn = pymysql.connect(
-    host=os.getenv('DB_HOST'),
-    user=os.getenv('DB_USER'),
-    password=os.getenv('DB_PASSWORD'),
-    database=os.getenv('DB_NAME')
+    host=os.getenv('DB_HOST', '127.0.0.1'),
+    user=os.getenv('DB_USER', 'root'),
+    password=os.getenv('DB_PASSWORD', '1234'),
+    database=os.getenv('DB_NAME', 'mydb'),
+    charset='utf8mb4',
+    autocommit=False
 )
 print('접속성공')
 
-# 2. 각 테이블별 CRUD
-# C - insert 
-# R - select
-# U - update
-# D - delte
-# 3 메소드
-#고객-customer 
-def create_customer(name):
-    sql = 'insert into customer values(null,%s)'
-    cur = conn.cursor()
-    cur.execute(sql,'이순신')
+# C - Create
+def create_customer(name: str) -> int:
+    sql = 'INSERT INTO customer (name) VALUES (%s)'
+    with conn.cursor() as cur:
+        cur.execute(sql, (name,))          # 반드시 튜플로!
+        new_id = cur.lastrowid
     conn.commit()
-    print('고객추가완료')
+    print(f'고객추가완료: {name} (id={new_id})')
+    return new_id
 
-def readAll_customers(isDict = False):
-    sql= 'select *from customer'
-
-    if isDict:
-        
-        cur = conn.cursor(pymysql.cursors.DictCursor)
+# R - Read
+def read_all_customers(is_dict: bool = False):
+    sql = 'SELECT customer_id, name FROM customer ORDER BY customer_id'
+    cursor_cls = pymysql.cursors.DictCursor if is_dict else None
+    with conn.cursor(cursor=cursor_cls) as cur:
         cur.execute(sql)
-        for c in cur.fetchall():
-            print(f"{c['customer_id']} {c['name']}")
-    else: 
-        cur = conn.cursor()
-        cur.execute(sql)
-        for c in cur.fetchall():
-            #print(f'{c[0]} {c[1]}')    
-            print(f'{c[0]}  {c[1]}')
+        rows = cur.fetchall()
+    if not rows:
+        print('조회결과 없음')
+    else:
+        for r in rows:
+            if is_dict:
+                print(f"{r['customer_id']} {r['name']}")
+            else:
+                print(f"{r[0]} {r[1]}")
     print('조회완료')
 
-def update_customer(customer_id,name):
+# U - Update
+def update_customer(customer_id: int, name: str):
     sql = '''
-        update customer 
-            set name = %s
-        where customer_id = %s
+        UPDATE customer
+           SET name = %s
+         WHERE customer_id = %s
     '''
     with conn.cursor() as cur:
-        cur.execute(sql, (customer_id,name)  )    
+        cur.execute(sql, (name, customer_id))  # (name, id) 순서!
     conn.commit()
+    print(f'수정완료: id={customer_id} -> name={name}')
 
+# D - Delete
+def delete_customer(customer_id: int):
+    sql = 'DELETE FROM customer WHERE customer_id = %s'
+    with conn.cursor() as cur:
+        cur.execute(sql, (customer_id,))       # 튜플로!
+    conn.commit()
+    print(f'삭제완료: id={customer_id}')
 
-
-conn.close()
-#  회원가입
-#  상품정보출력
-#  상품구입
-#  상품정보 입력
-#  대쉬보드 : 고객별 상품별 구매회수 평균구매액
-
-# 4. 기능구현과 테스트가 되면 streamlit으로 ui구성 -- 템플릿 화면을 보고 유사하 형태로 구혀
+if __name__ == '__main__':
+    try:
+        # 동작 확인
+        new_id = create_customer('이순신')
+        read_all_customers(is_dict=True)
+        # update_customer(new_id, '유관순')
+        # delete_customer(new_id)
+        # read_all_customers(is_dict=True)
+    finally:
+        conn.close()
